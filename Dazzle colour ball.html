@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style type="text/css">
+	*{
+		margin: 0;padding: 0;overflow: hidden;
+	}
+		#canvas{
+			overflow: hidden;
+			border:1px solid #333;
+			background: #333;
+		}
+	</style>
+</head>
+<body>
+<canvas id="canvas" width="600" height="400"></canvas>
+<script type="text/javascript">
+	// 使用canvas 画任何东西 一但画上 再也得不到了
+	// 得到canvas标签
+	var canvas = document.getElementById('canvas');
+	// 设置canvas的宽高
+	canvas.height = document.documentElement.clientHeight
+	canvas.width = document.documentElement.clientWidth
+	// 得到 ctx 属性为2D
+	var ctx = this.canvas.getContext('2d');
+	function Ball(x,y,r){
+		this.x = x;
+		this.y = y;
+		this.r = r;
+		this.color_r = ~~(Math.random() * 255)
+		this.color_g = ~~(Math.random() * 255)
+		this.color_b = ~~(Math.random() * 255)
+		// 设置透明度
+		this.globalAlpha = Math.random()
+		do {
+			this.dx = Math.random() * 8 - 4
+			this.dy = Math.random() * 8 - 4
+		} while (this.dx == 0 && this.dy == 0);
+		arr.push(this)
+	}
+	var arr = [];
+	Ball.prototype.render = function(){
+		// save 和 restore 一般来说是配合使用的 目的 就是让这里的语句不要影响别人
+		ctx.save()
+		ctx.beginPath();
+		ctx.arc(this.x,this.y,this.r,0,6.3,false);
+		ctx.fillStyle = `rgb(${this.color_r},${this.color_b},${this.color_g})`;
+		ctx.globalAlpha = this.globalAlpha;
+		ctx.fill();
+		ctx.restore()
+	};
+	Ball.prototype.update = function(){
+		this.r--;
+		this.x+=this.dx;
+		this.y+=this.dy;
+		if(this.r <= 0){
+			this.remove()
+		}
+	};
+	Ball.prototype.remove = function(){
+		for (var i = 0; i < arr.length; i++) {
+			if(arr[i] === this){
+				arr.splice(i,1)
+			}
+		}
+	}
+
+	var f = 0;
+	setInterval(function(){
+		f++;
+		// 清屏幕
+		ctx.clearRect(0,0,canvas.width,canvas.height)
+		// 打印帧编号 先设置字体的样子 然后再画
+		for (var i = 0; i < arr.length; i++) {
+			// 遍历数组 然后 数组里的每一项 去update render
+			arr[i].render();
+			arr[i].update();
+		}
+		ctx.font = '16px 微软雅黑'
+		ctx.fillStyle = "blue"
+		ctx.fillText("帧编号" + self.f,20,20)
+	}, 20);
+	canvas.onmousemove = function(e){
+		new Ball(e.clientX,e.clientY,30)
+	}
+</script>
+</body>
+</html>
